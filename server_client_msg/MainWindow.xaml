@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Server_Client" Height="450" Width="800">
     <Grid Margin="10">
-        <ListBox x:Name="MessageHistory" 
+        <ListBox x:Name="list_msgs" 
                  Height="250" 
                  VerticalAlignment="Top" 
                  HorizontalAlignment="Stretch" 
@@ -17,7 +17,7 @@
                  BorderThickness="1"
                  Padding="5"/>
 
-        <TextBox x:Name="MessageToSend" 
+        <TextBox x:Name="edit_msg" 
                  Height="30" 
                  Margin="0,270,100,0" 
                  VerticalAlignment="Top" 
@@ -28,8 +28,8 @@
                  Padding="5"/>
 
 
-        <Button x:Name="SendMessageButton" 
-                Content="Odoslať" 
+        <Button x:Name="btn_send" 
+                Content="Send" 
                 Height="30" 
                 Width="80" 
                 VerticalAlignment="Top" 
@@ -40,21 +40,20 @@
                 BorderThickness="0"
                 FontWeight="Bold" 
                 Cursor="Hand"
-                Click="SendMessageButton_Click"/>
-        
-        <Button x:Name="ConnectButton" 
-                Content="Pripojiť" 
+                Click="btn_send_Click"/>
+
+        <Button x:Name="btn_connect" 
+                Content="Connect to server" 
                 Height="30" 
-                Width="80" 
+                Width="133" 
                 VerticalAlignment="Bottom" 
-                HorizontalAlignment="Left" 
-                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
                 Background="#2196F3" 
                 Foreground="White" 
                 BorderThickness="0"
                 FontWeight="Bold" 
                 Cursor="Hand"
-                Click="ConnectButton_Click"/>
+                Click="btn_connect_Click" Margin="10,0,0,10"/>
 
     </Grid>
 </Window>

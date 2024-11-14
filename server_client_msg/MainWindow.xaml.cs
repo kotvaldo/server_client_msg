@@ -11,14 +11,24 @@ using System.Windows.Shapes;
 
 namespace server_client_msg
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+     
+
+        private void btn_connect_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btn_send_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
