@@ -54,6 +54,18 @@
                 FontWeight="Bold" 
                 Cursor="Hand"
                 Click="btn_connect_Click" Margin="10,0,0,10"/>
-
+        
+        <Button x:Name="btn_terminate" 
+                Content="Terminate connection" 
+                Height="30" 
+                Width="133" 
+                VerticalAlignment="Bottom" 
+                HorizontalAlignment="Right"
+                Background="Red" 
+                Foreground="White" 
+                BorderThickness="0"
+                FontWeight="Bold" 
+                Cursor="Hand"
+                Click="btn_terminate_Click" Margin="10,0,0,10"/>
     </Grid>
 </Window>
