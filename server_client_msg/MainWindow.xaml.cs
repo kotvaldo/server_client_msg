@@ -1,44 +1,29 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 
 namespace server_client_msg
 {
-    
     public partial class MainWindow : Window
     {
         ObservableCollection<string> messages;
         Client client;
-        Server server;
 
-        
         public MainWindow()
         {
             InitializeComponent();
             messages = new ObservableCollection<string>();
             list_msgs.ItemsSource = messages;
             client = new(messages);
-            server = new(messages);
         }
-
-     
 
         private void btn_connect_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                server.Start(8080);
-               
-
                 client.Connect("127.0.0.1", 8080);
+                messages.Add("Client connected to server.");
             }
             catch (Exception ex)
             {
@@ -55,10 +40,8 @@ namespace server_client_msg
                 if (!string.IsNullOrWhiteSpace(message))
                 {
                     await client.SendMessageAsync(message);
-
                     string response = await client.ReceiveMessageAsync();
-                   
-
+                    messages.Add($"Server response: {response}");
                     edit_msg.Clear();
                 }
                 else
@@ -75,12 +58,9 @@ namespace server_client_msg
         private void btn_terminate_Click(object sender, RoutedEventArgs e)
         {
             try
-            { 
+            {
                 client.TerminateConnection();
-               
-
-                server.Stop();
-               
+                messages.Add("Client connection terminated.");
             }
             catch (Exception ex)
             {
@@ -91,11 +71,7 @@ namespace server_client_msg
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             base.OnClosing(e);
-
             client.TerminateConnection();
-            server.Stop();
         }
-
-
     }
 }
