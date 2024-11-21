@@ -128,6 +128,7 @@ public class Client
     {
         if (client != null)
         {
+            this.isReceiving = false;
             try
             {
                 if (stream != null)
