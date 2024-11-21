@@ -1,48 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Windows;
 
-namespace server_client_msg
+public class Client
 {
-    
-    public class Client
+    private TcpClient? client;
+    private NetworkStream? stream;
+    private ObservableCollection<string> Messages;
+
+    public bool IsConnected => client?.Connected ?? false;
+    private bool isReceiving; // Flag to track receiving status
+
+    public Client(ObservableCollection<string> messages)
     {
-        private TcpClient? client;
-        private NetworkStream? stream;
-        private ObservableCollection<string> Messages;
+        Messages = messages;
+    }
 
-
-        public bool IsConnected => client?.Connected ?? false;
-        public Client(ObservableCollection<string> messages)
+    public void Connect(string ipAddress, int port, int localPort = 0)
+    {
+        try
         {
-            Messages = messages;
-        }
+            TerminateConnection();
+            if (localPort > 0)
+            {
+                var localEndPoint = new IPEndPoint(IPAddress.Any, localPort);
+                client = new TcpClient(localEndPoint); // Bind the client to the specified local port
 
-        public void Connect(string ipAddress, int port)
+            }
+            else
+            {
+                client = new TcpClient(); // Default behavior without specifying a local port
+            }
+            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            client.Connect(ipAddress, port);
+            stream = client.GetStream();
+            isReceiving = true;
+            Messages.Add($"Connected to the server from local port {((IPEndPoint)client.Client.LocalEndPoint).Port}.");
+            Console.WriteLine($"Connected to the server from local port {((IPEndPoint)client.Client.LocalEndPoint).Port}.");
+
+            Task.Run(async () =>
+            {
+                await ReceiveMessagesAsync();
+            });
+        }
+        catch (Exception ex)
+        {
+            Messages.Add($"Connection error: {ex.Message}");
+            Console.WriteLine($"Connection error: {ex.Message}");
+        }
+    }
+
+    private async Task ReceiveMessagesAsync()
+    {
+        try
+        {
+            while (isReceiving && IsConnected)
+            {
+                byte[] buffer = new byte[1024];
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+
+                if (bytesRead > 0)
+                {
+                    string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        Messages.Add(response.Trim());
+                    });
+
+                    Console.WriteLine($"Received from server: {response.Trim()}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (isReceiving) // Only log errors if still receiving
+            {
+                Console.WriteLine($"Error receiving messages: {ex.Message}");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Messages.Add($"Error receiving messages: {ex.Message}");
+                });
+            }
+        }
+    }
+
+
+
+
+
+    public async Task SendMessageAsync(string message)
+    {
+        if (client != null && client.Connected)
         {
             try
-            {
-                client = new TcpClient(ipAddress, port);
-                stream = client.GetStream();
-                Messages.Add("Connected to the server.");
-            }
-            catch (Exception ex)
-            {
-                Messages.Add($"Connection error: {ex.Message}");
-            }
-        }
-
-        public async Task SendMessageAsync(string message)
-        {
-            if (client != null && client.Connected)
             {
                 byte[] data = Encoding.ASCII.GetBytes(message);
                 await stream.WriteAsync(data, 0, data.Length);
@@ -50,53 +103,56 @@ namespace server_client_msg
                 {
                     Messages.Add($"Sent: {message}");
                 });
+                Console.WriteLine($"Message sent: {message}");
             }
-            else
+            catch (Exception ex)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    Messages.Add("Unable to send message. Not connected to the server.");
+                    Messages.Add($"Error sending message: {ex.Message}");
                 });
+                Console.WriteLine($"Error sending message: {ex.Message}");
             }
         }
-
-        public async Task<string> ReceiveMessageAsync()
+        else
         {
-            if (client != null && client.Connected)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                byte[] buffer = new byte[1024];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Messages.Add($"Received from server: {response}");
-                });
-
-                return response;
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Messages.Add("Unable to receive message. Not connected to the server.");
-                });
-                return string.Empty;
-            }
+                Messages.Add("Unable to send message. Not connected to the server.");
+            });
+            Console.WriteLine("Unable to send message. Not connected to the server.");
         }
+    }
 
-
-        public void TerminateConnection()
+    public void TerminateConnection()
+    {
+        if (client != null)
         {
-            if (client != null)
+            try
             {
+                if (stream != null)
+                {
+                    stream.Close();
+                    stream.Dispose();
+                    stream = null;
+                }
+
                 client.Close();
-                stream?.Close();
+                client.Dispose();
+                client = null;
+
+                Console.WriteLine("Client connection terminated successfully.");
                 Messages.Add("Disconnected from the server.");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during client termination: {ex.Message}");
+                Messages.Add($"Error during client termination: {ex.Message}");
+            }
         }
-
-
     }
+
+
+
 
 }

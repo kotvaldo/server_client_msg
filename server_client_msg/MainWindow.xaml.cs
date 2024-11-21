@@ -22,7 +22,7 @@ namespace server_client_msg
         {
             try
             {
-                client.Connect("127.0.0.1", 8080);
+                client.Connect("127.0.0.1", 8080, 53439);
                 messages.Add("Client connected to server.");
             }
             catch (Exception ex)
@@ -40,8 +40,6 @@ namespace server_client_msg
                 if (!string.IsNullOrWhiteSpace(message))
                 {
                     await client.SendMessageAsync(message);
-                    string response = await client.ReceiveMessageAsync();
-                    messages.Add($"Server response: {response}");
                     edit_msg.Clear();
                 }
                 else
