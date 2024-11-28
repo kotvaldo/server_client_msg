@@ -42,6 +42,26 @@
                 Cursor="Hand"
                 Click="btn_send_Click"/>
 
+        <TextBlock Text="Type username:" 
+           Height="30" 
+           Width="100" 
+           Margin="200,240,0,35" 
+           VerticalAlignment="Bottom" 
+           HorizontalAlignment="Left" 
+           Foreground="Black" 
+           FontWeight="Bold"
+           FontSize="14" />
+        
+        <TextBox x:Name="edit_username" 
+              Height="30" 
+                 Width="100"
+                Margin="200,270,0,10"
+              VerticalAlignment="Bottom" 
+                 HorizontalAlignment="Left"
+              Background="White" 
+              BorderBrush="LightGray" 
+              BorderThickness="1"
+              Padding="5"/>
         <Button x:Name="btn_connect" 
                 Content="Connect to server" 
                 Height="30" 
@@ -54,7 +74,7 @@
                 FontWeight="Bold" 
                 Cursor="Hand"
                 Click="btn_connect_Click" Margin="10,0,0,10"/>
-        
+
         <Button x:Name="btn_terminate" 
                 Content="Terminate connection" 
                 Height="30" 

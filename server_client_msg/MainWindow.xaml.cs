@@ -18,18 +18,27 @@ namespace server_client_msg
             client = new(messages);
         }
 
-        private void btn_connect_Click(object sender, RoutedEventArgs e)
+        private async void btn_connect_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                client.Connect("127.0.0.1", 8080, 53439);
-                messages.Add("Client connected to server.");
+                string username = edit_username.Text.Trim();
+
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    messages.Add("Username cannot be empty. Please enter a valid username.");
+                    return;
+                }
+
+                // Použitie novej metódy
+                await client.ConnectAndSendUsernameAsync("127.0.0.1", 8080, 0, username);
             }
             catch (Exception ex)
             {
                 messages.Add($"Error during connection: {ex.Message}");
             }
         }
+
 
         private async void btn_send_Click(object sender, RoutedEventArgs e)
         {

@@ -52,6 +52,65 @@ public class Client
         }
     }
 
+    public async Task ConnectAndSendUsernameAsync(string ipAddress, int port, int localPort, string username)
+    {
+        try
+        {
+            Connect(ipAddress, port, localPort);
+
+            // Odoslanie užívateľského mena
+            await SendUsernameAsync(username);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Messages.Add($"Successfully connected and username \"{username}\" sent to server.");
+            });
+        }
+        catch (Exception ex)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Messages.Add($"Error during connect and send username: {ex.Message}");
+            });
+            Console.WriteLine($"Error during connect and send username: {ex.Message}");
+        }
+    }
+
+    public async Task SendUsernameAsync(string username)
+    {
+        if (client != null && client.Connected)
+        {
+            try
+            {
+                string message = $"USERNAME:{username}";
+                byte[] data = Encoding.ASCII.GetBytes(message);
+                await stream.WriteAsync(data, 0, data.Length);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Messages.Add($"Username sent: {username}");
+                });
+
+                Console.WriteLine($"Username sent: {username}");
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Messages.Add($"Error sending username: {ex.Message}");
+                });
+                Console.WriteLine($"Error sending username: {ex.Message}");
+            }
+        }
+        else
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Messages.Add("Unable to send username. Not connected to the server.");
+            });
+            Console.WriteLine("Unable to send username. Not connected to the server.");
+        }
+    }
     private async Task ReceiveMessagesAsync()
     {
         try
